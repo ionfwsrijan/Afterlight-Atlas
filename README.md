@@ -4,7 +4,9 @@ Speculative climate worldbuilding for Earth Day. Shape future planetary scenario
 
 [Live Demo](https://afterlight-atlas.vercel.app/) · [Challenge Submission](./SUBMISSION.md)
 
-![Afterlight Atlas interface preview](./public/readme-preview.png)
+<p align="center">
+  <img src="./public/readme-preview.png" alt="Afterlight Atlas interface preview" width="960" />
+</p>
 
 ## Overview
 
