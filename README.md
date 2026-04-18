@@ -2,31 +2,11 @@
 
 Speculative climate worldbuilding for Earth Day. Shape future planetary scenarios, compare them in Judge Mode, and present them through a polished editorial interface.
 
-[Live Demo](https://afterlight-atlas.vercel.app/) · [Challenge Submission](./SUBMISSION.md)
+[Live Demo](https://afterlight-atlas.vercel.app/) | [Challenge Submission](./SUBMISSION.md)
 
 <p align="center">
   <img src="./public/readme-preview.png" alt="Afterlight Atlas interface preview" width="960" />
 </p>
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Why This Project Exists](#why-this-project-exists)
-- [What Makes It Different](#what-makes-it-different)
-- [Feature Breakdown](#feature-breakdown)
-- [Experience Flow](#experience-flow)
-- [Judge Mode](#judge-mode)
-- [Present Mode](#present-mode)
-- [Earth Day Fit](#earth-day-fit)
-- [Design Direction](#design-direction)
-- [Technical Architecture](#technical-architecture)
-- [State and Data Model](#state-and-data-model)
-- [Tech Stack](#tech-stack)
-- [Run Locally](#run-locally)
-- [Build and Deploy](#build-and-deploy)
-- [Project Structure](#project-structure)
-- [Known Constraints](#known-constraints)
-- [Future Improvements](#future-improvements)
 
 ## Overview
 
@@ -322,17 +302,6 @@ This project is intentionally framed with a few boundaries:
 - Saved worlds are local-first rather than cloud-synced.
 
 These are deliberate tradeoffs. The goal is not scientific certainty. The goal is to make climate systems, futures, and tradeoffs easier to imagine, compare, and communicate.
-
-## Future Improvements
-
-If the project were extended further, strong next steps would include:
-
-- richer scenario history and version comparison
-- downloadable presentation bundles
-- more world seeds with distinct civic and ecological archetypes
-- optional data overlays from real climate datasets
-- deeper accessibility modes for motion, contrast, and text density
-- multi-user collaboration or shared public scenario galleries
 
 ## Closing Note
 
