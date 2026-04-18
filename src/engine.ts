@@ -6,6 +6,7 @@ import {
   levers,
   ritualsByLever,
   storageKey,
+  worldSeeds,
 } from './data.ts'
 import type {
   ComparisonRow,
@@ -423,19 +424,26 @@ export function buildBestFutureValues(seedId: string): Record<LeverId, number> {
   )
 }
 
-export function serializeWorldHash(seedId: string, values: Record<LeverId, number>): string {
+export function serializeWorldHash(seedId: string, values: Record<LeverId, number>, customName = ''): string {
   const compact = leverOrder.map((leverId) => clampValue(values[leverId]).toString()).join('.')
-  return `#${seedId}|${compact}`
+  const cleanName = customName.trim()
+  const encodedName =
+    cleanName.length > 0 && cleanName !== getWorldSeed(seedId).name ? `|${encodeURIComponent(cleanName)}` : ''
+  return `#${seedId}|${compact}${encodedName}`
 }
 
-export function parseWorldHash(hash: string): { seedId: string; values: Record<LeverId, number> } | null {
+export function parseWorldHash(hash: string): { seedId: string; values: Record<LeverId, number>; customName: string | null } | null {
   if (!hash.startsWith('#')) {
     return null
   }
 
   const clean = hash.slice(1)
-  const [seedId, rawValues] = clean.split('|')
+  const [seedId, rawValues, rawName] = clean.split('|')
   if (!seedId || !rawValues) {
+    return null
+  }
+
+  if (!worldSeeds.some((seed) => seed.id === seedId)) {
     return null
   }
 
@@ -453,9 +461,20 @@ export function parseWorldHash(hash: string): { seedId: string; values: Record<L
     {} as Record<LeverId, number>,
   )
 
+  let customName: string | null = null
+  if (rawName) {
+    try {
+      const decoded = decodeURIComponent(rawName).trim()
+      customName = decoded.length > 0 ? decoded : null
+    } catch {
+      customName = null
+    }
+  }
+
   return {
     seedId,
     values,
+    customName,
   }
 }
 
@@ -539,7 +558,17 @@ function byPositiveDelta(left: ComparisonRow, right: ComparisonRow): number {
   return right.delta - left.delta
 }
 
-function buildVerdict(scoreDelta: number): string {
+function buildVerdict(
+  scoreDelta: number,
+  strongestGain: ComparisonRow | null,
+  strongestLoss: ComparisonRow | null,
+): string {
+  if (scoreDelta === 0 && !strongestGain && !strongestLoss) {
+    return 'Baseline match'
+  }
+  if (scoreDelta === 0) {
+    return 'Tradeoff-neutral remix'
+  }
   if (scoreDelta >= 18) {
     return 'Category-level leap'
   }
@@ -558,14 +587,70 @@ function buildVerdict(scoreDelta: number): string {
   return 'Regression against baseline'
 }
 
-function buildRecommendation(scoreDelta: number, strongestGain: ComparisonRow, strongestLoss: ComparisonRow): string {
+function buildRecommendation(
+  scoreDelta: number,
+  strongestGain: ComparisonRow | null,
+  strongestLoss: ComparisonRow | null,
+): string {
+  if (scoreDelta === 0 && !strongestGain && !strongestLoss) {
+    return 'Create a clearer delta before presenting this version, or use Best Future to generate a stronger baseline-beating story.'
+  }
+  if (scoreDelta === 0 && strongestGain && strongestLoss) {
+    return `This version breaks even overall, so present the ${strongestGain.label.toLowerCase()} gain only if you also explain the ${strongestLoss.label.toLowerCase()} tradeoff clearly.`
+  }
   if (scoreDelta >= 10) {
+    if (!strongestGain) {
+      return 'Lead with the overall score lift and show the supporting metric gains, because this version already reads as a clear improvement.'
+    }
+    if (!strongestLoss) {
+      return `Lead with the ${strongestGain.label.toLowerCase()} jump. This version improves the baseline without introducing a meaningful regression.`
+    }
     return `Lead with the ${strongestGain.label.toLowerCase()} jump, then acknowledge the ${strongestLoss.label.toLowerCase()} tradeoff so the story feels credible.`
   }
   if (scoreDelta >= 0) {
+    if (!strongestGain) {
+      return 'This version is stable, but it still needs a more obvious advantage before it feels like a winning scenario.'
+    }
+    if (!strongestLoss) {
+      return `This version is promising. Lead with the ${strongestGain.label.toLowerCase()} lift and note that it introduces no meaningful regression.`
+    }
     return `This version is promising, but it still needs a stronger lift in ${strongestGain.label.toLowerCase()} to feel like a decisive winner.`
   }
+  if (!strongestLoss) {
+    return 'Before presenting this scenario, recover the overall score delta so the baseline does not remain the stronger argument.'
+  }
   return `Before presenting this scenario, recover the loss in ${strongestLoss.label.toLowerCase()} or the baseline will remain the stronger argument.`
+}
+
+function buildComparisonSummary(
+  currentName: string,
+  baselineName: string,
+  scoreDelta: number,
+  strongestGain: ComparisonRow | null,
+  strongestLoss: ComparisonRow | null,
+): string {
+  if (scoreDelta === 0 && !strongestGain && !strongestLoss) {
+    return `${currentName} currently matches ${baselineName}. Judge Mode needs a stronger lever move before this version can argue for itself.`
+  }
+
+  if (scoreDelta === 0 && strongestGain && strongestLoss) {
+    return `${currentName} currently breaks even with ${baselineName}: gains in ${strongestGain.label.toLowerCase()} are offset by losses in ${strongestLoss.label.toLowerCase()}.`
+  }
+
+  if (scoreDelta > 0 && strongestGain && !strongestLoss) {
+    return `${currentName} improves ${baselineName} by ${Math.abs(scoreDelta)} points, driven most by ${strongestGain.label.toLowerCase()} with no meaningful regression elsewhere.`
+  }
+
+  if (scoreDelta < 0 && !strongestGain && strongestLoss) {
+    return `${currentName} falls behind ${baselineName} by ${Math.abs(scoreDelta)} points, constrained most by ${strongestLoss.label.toLowerCase()} without an offsetting gain.`
+  }
+
+  if (strongestGain && strongestLoss) {
+    const direction = scoreDelta >= 0 ? 'improves' : 'falls behind'
+    return `${currentName} ${direction} ${baselineName} by ${Math.abs(scoreDelta)} points, driven most by ${strongestGain.label.toLowerCase()} and constrained most by ${strongestLoss.label.toLowerCase()}.`
+  }
+
+  return `${currentName} differs from ${baselineName} by ${Math.abs(scoreDelta)} points, but the scenario still needs a clearer advantage to read convincingly.`
 }
 
 export function compareWorlds(
@@ -602,28 +687,16 @@ export function compareWorlds(
   }))
 
   const combined = [...metricDeltas, ...leverDeltas]
-  const sorted = [...combined].sort(compareRows)
-  const strongestGain =
-    [...combined].sort(byPositiveDelta).find((row) => row.delta > 0) ??
-    {
-      ...sorted[0],
-      delta: 0,
-    }
-  const strongestLoss =
-    [...combined].sort(byPositiveDelta).reverse().find((row) => row.delta < 0) ??
-    {
-      ...sorted[0],
-      delta: 0,
-    }
+  const strongestGain = [...combined].sort(byPositiveDelta).find((row) => row.delta > 0) ?? null
+  const strongestLoss = [...combined].sort((left, right) => left.delta - right.delta).find((row) => row.delta < 0) ?? null
   const scoreDelta = currentWorld.score - baselineWorld.score
-  const direction = scoreDelta >= 0 ? 'improves' : 'falls behind'
-  const summary = `${currentName} ${direction} ${baselineName} by ${Math.abs(scoreDelta)} points, driven most by ${strongestGain.label.toLowerCase()} and constrained most by ${strongestLoss.label.toLowerCase()}.`
+  const summary = buildComparisonSummary(currentName, baselineName, scoreDelta, strongestGain, strongestLoss)
 
   return {
     baselineName,
     baselineSource,
     scoreDelta,
-    verdict: buildVerdict(scoreDelta),
+    verdict: buildVerdict(scoreDelta, strongestGain, strongestLoss),
     summary,
     recommendation: buildRecommendation(scoreDelta, strongestGain, strongestLoss),
     metricDeltas: metricDeltas.sort(compareRows),
@@ -654,7 +727,7 @@ export function buildShareMarkdown(
     .map((lever) => `- ${lever.label}: ${values[lever.id]}`)
     .join('\n')
   const signalSummary = world.signalPillars.map((item) => `- ${item}`).join('\n')
-  const url = `${origin}${serializeWorldHash(seedId, values)}`
+  const url = `${origin}${serializeWorldHash(seedId, values, name)}`
 
   return `# ${name}
 

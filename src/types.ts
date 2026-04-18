@@ -116,8 +116,8 @@ export interface WorldComparison {
   recommendation: string
   metricDeltas: ComparisonRow[]
   leverDeltas: ComparisonRow[]
-  strongestGain: ComparisonRow
-  strongestLoss: ComparisonRow
+  strongestGain: ComparisonRow | null
+  strongestLoss: ComparisonRow | null
 }
 
 export interface AppState {

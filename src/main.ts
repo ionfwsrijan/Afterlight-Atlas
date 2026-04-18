@@ -29,7 +29,7 @@ const initialSeedId = parsedHash?.seedId ?? worldSeeds[0].id
 
 const state: AppState = {
   activeSeedId: initialSeedId,
-  customName: getWorldSeed(initialSeedId).name,
+  customName: parsedHash?.customName ?? getWorldSeed(initialSeedId).name,
   values: parsedHash?.values ?? createValuesFromSeed(initialSeedId),
   saved: loadSavedSnapshots(),
   compareSnapshotId: null,
@@ -148,7 +148,7 @@ function fillWrappedText(
 }
 
 function updateHash() {
-  const hash = serializeWorldHash(state.activeSeedId, state.values)
+  const hash = serializeWorldHash(state.activeSeedId, state.values, state.customName)
   const target = `${window.location.pathname}${window.location.search}${hash}`
   window.history.replaceState({}, '', target)
 }
@@ -630,8 +630,16 @@ function renderApp(options: RenderOptions = {}) {
           <div class="judge-copy">
             <div class="judge-badge-row">
               <span class="judge-badge">${escapeHtml(comparison.baselineSource)}</span>
-              <span class="judge-badge">${escapeHtml(comparison.strongestGain.label)} strongest gain</span>
-              <span class="judge-badge">${escapeHtml(comparison.strongestLoss.label)} main watchout</span>
+              <span class="judge-badge">${
+                comparison.strongestGain
+                  ? `${escapeHtml(comparison.strongestGain.label)} strongest gain`
+                  : 'No standout gains yet'
+              }</span>
+              <span class="judge-badge">${
+                comparison.strongestLoss
+                  ? `${escapeHtml(comparison.strongestLoss.label)} main watchout`
+                  : 'No meaningful regressions'
+              }</span>
             </div>
             <p class="judge-summary">${escapeHtml(comparison.summary)}</p>
             <p class="judge-recommendation">${escapeHtml(comparison.recommendation)}</p>
@@ -1002,6 +1010,46 @@ async function exportComparisonCard() {
   setNotice('Exported the Judge Mode comparison card as PNG.', 'success')
 }
 
+function fallbackCopyText(text: string): boolean {
+  const textArea = document.createElement('textarea')
+  textArea.value = text
+  textArea.setAttribute('readonly', 'true')
+  textArea.style.position = 'fixed'
+  textArea.style.top = '0'
+  textArea.style.left = '-9999px'
+  textArea.style.opacity = '0'
+  document.body.append(textArea)
+  textArea.focus({ preventScroll: true })
+  textArea.select()
+
+  let copied = false
+  try {
+    copied = document.execCommand('copy')
+  } catch {
+    copied = false
+  }
+
+  textArea.remove()
+  return copied
+}
+
+async function copyTextWithFallback(text: string, successMessage: string, blockedMessage: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else if (!fallbackCopyText(text)) {
+      throw new Error('Clipboard API unavailable')
+    }
+  } catch {
+    if (!fallbackCopyText(text)) {
+      setNotice(blockedMessage, 'neutral')
+      return
+    }
+  }
+
+  setNotice(successMessage, 'success')
+}
+
 async function copyStory() {
   const text = buildShareMarkdown(
     displayName(),
@@ -1009,13 +1057,19 @@ async function copyStory() {
     state.values,
     `${window.location.origin}${window.location.pathname}${window.location.search}`,
   )
-  await navigator.clipboard.writeText(text)
-  setNotice('Copied a shareable project story to the clipboard.', 'success')
+  await copyTextWithFallback(
+    text,
+    'Copied a shareable project story to the clipboard.',
+    'Clipboard access was blocked. You can still use Download JSON or copy the story manually.',
+  )
 }
 
 async function copyLink() {
-  await navigator.clipboard.writeText(window.location.href)
-  setNotice('Copied the current world link to the clipboard.', 'success')
+  await copyTextWithFallback(
+    window.location.href,
+    'Copied the current world link to the clipboard.',
+    'Clipboard access was blocked. You can still copy the link from the browser address bar.',
+  )
 }
 
 function downloadWorld() {
@@ -1138,12 +1192,21 @@ root.addEventListener('click', (event) => {
     return
   }
 
-  void handleButtonAction(action, actionButton).then(() => {
-    renderApp({
-      preserveScroll: action !== 'toggle-present',
-      preserveFocus: action !== 'toggle-present',
+  void handleButtonAction(action, actionButton)
+    .then(() => {
+      renderApp({
+        preserveScroll: action !== 'toggle-present',
+        preserveFocus: action !== 'toggle-present',
+      })
     })
-  })
+    .catch((error) => {
+      console.error(error)
+      setNotice('That action was blocked by the browser. Try again or use a manual fallback.', 'neutral')
+      renderApp({
+        preserveScroll: action !== 'toggle-present',
+        preserveFocus: action !== 'toggle-present',
+      })
+    })
 })
 
 root.addEventListener('input', (event) => {
