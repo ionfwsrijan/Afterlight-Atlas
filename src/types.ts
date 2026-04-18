@@ -95,7 +95,6 @@ export interface DerivedWorld {
   weakSignals: string[]
   rituals: RitualCard[]
   timeline: TimelineCard[]
-  signature: string
 }
 
 export interface ComparisonRow {

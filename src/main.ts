@@ -34,7 +34,7 @@ const state: AppState = {
   saved: loadSavedSnapshots(),
   compareSnapshotId: null,
   presentMode: false,
-  notice: 'Move a lever, pick a seed, and the world signature updates instantly.',
+  notice: 'Move a lever, pick a seed, and the world updates instantly.',
   noticeTone: 'neutral',
 }
 
@@ -399,10 +399,6 @@ function renderApp(options: RenderOptions = {}) {
             <span>Seed</span>
             <strong>${escapeHtml(seed.name)}</strong>
           </div>
-          <div class="topbar-pill">
-            <span>Signature</span>
-            <strong>${escapeHtml(world.signature)}</strong>
-          </div>
           <button type="button" class="ghost-button topbar-button" data-action="toggle-present">
             ${state.presentMode ? 'Exit Present Mode' : 'Present Mode'}
           </button>
@@ -449,8 +445,8 @@ function renderApp(options: RenderOptions = {}) {
             <p>${escapeHtml(world.label)}</p>
           </div>
           <div class="micro-card">
-            <span>World signature</span>
-            <strong>${escapeHtml(world.signature)}</strong>
+            <span>World outlook</span>
+            <strong>${escapeHtml(world.label)}</strong>
             <p>${escapeHtml(world.manifesto)}</p>
           </div>
         </aside>
@@ -997,7 +993,7 @@ async function exportComparisonCard() {
   ctx.fillStyle = '#5d6662'
   ctx.font = '600 18px Manrope'
   ctx.fillText(`Baseline source: ${baseline.source}`, 100, 824)
-  ctx.fillText(`World signature: ${world.signature}`, 100, 852)
+  ctx.fillText(`Planet score: ${world.score} / 100 (${world.label})`, 100, 852)
   ctx.fillStyle = accent
   ctx.fillText('afterlight atlas / build for the planet', 1140, 852)
 
@@ -1077,7 +1073,6 @@ function downloadWorld() {
   const payload = {
     name: displayName(),
     seed: getWorldSeed(state.activeSeedId).name,
-    signature: world.signature,
     score: world.score,
     label: world.label,
     values: state.values,

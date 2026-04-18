@@ -43,7 +43,7 @@ It does four things at once:
 
 - Four original future seeds with distinct climate philosophies
 - Seven adjustable planetary levers
-- Live "planet score" and world signature generation
+- Live planet score and world-state generation
 - Six speculative systems signals:
   - atmosphere relief
   - biodiversity return

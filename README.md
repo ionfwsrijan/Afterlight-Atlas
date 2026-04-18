@@ -74,7 +74,6 @@ These are intentionally systems-level levers rather than isolated habits. The in
 Every scenario generates a live world state with:
 
 - a planet score
-- a world signature
 - a visual aura
 - strongest and weakest system levers
 - dominant and vulnerable planetary signals

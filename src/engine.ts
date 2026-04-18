@@ -174,10 +174,6 @@ function pick<T>(items: T[], index: number): T {
   return items[Math.abs(index) % items.length]
 }
 
-function padCode(value: number): string {
-  return value.toString(36).toUpperCase().padStart(2, '0')
-}
-
 function topAndBottomMetrics(metrics: MetricSummary[]) {
   const sorted = [...metrics].sort((left, right) => right.value - left.value)
   return {
@@ -348,17 +344,6 @@ function buildRituals(values: Record<LeverId, number>, finger: number) {
     .slice(0, 3)
 
   return weakest.map((lever, index) => pick(ritualsByLever[lever.id], finger + index * 2))
-}
-
-function buildSignature(seedId: string, values: Record<LeverId, number>, score: number) {
-  const prefix = seedId
-    .split('-')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-
-  return `${prefix}-${padCode(score)}${padCode(values.energy + values.water)}${padCode(values.care + values.biodiversity)}`
 }
 
 export function clampValue(value: number): number {
@@ -546,7 +531,6 @@ export function deriveWorld(seedId: string, values: Record<LeverId, number>): De
     weakSignals: buildWeakSignals(values, metrics),
     rituals: buildRituals(values, finger),
     timeline: buildTimeline(dominant, vulnerable, score, finger),
-    signature: buildSignature(seed.id, values, score),
   }
 }
 
@@ -734,7 +718,6 @@ export function buildShareMarkdown(
 ${world.dispatch}
 
 Seed: ${seed.name}
-World signature: ${world.signature}
 Planet score: ${world.score} / 100 (${world.label})
 
 Top signals
