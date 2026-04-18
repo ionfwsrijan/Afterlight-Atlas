@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5efe3" />
+      <stop offset="100%" stop-color="#eadcc4" />
+    </linearGradient>
+    <linearGradient id="planet" x1="10%" x2="80%" y1="10%" y2="100%">
+      <stop offset="0%" stop-color="#1d7369" />
+      <stop offset="100%" stop-color="#365c42" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d7b16d" stop-opacity=".55" />
+      <stop offset="100%" stop-color="#d7b16d" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="880" cy="310" r="200" fill="url(#glow)" />
+  <circle cx="880" cy="310" r="150" fill="url(#planet)" />
+  <ellipse cx="880" cy="235" rx="115" ry="28" fill="#ffffff" fill-opacity=".28" />
+  <path fill="#efe6d0" fill-opacity=".48" d="M775 245c33-34 92-43 146-15 13 7 9 28-11 35-70 24-105 55-136 45-31-10-29-35 1-65Z" />
+  <path fill="#efe6d0" fill-opacity=".44" d="M915 365c40 0 63 33 55 67-8 33-51 51-82 29-31-23-22-96 27-96Z" />
+  <text x="110" y="160" fill="#184f44" font-family="Fraunces, Georgia, serif" font-size="84" font-weight="700">
+    Afterlight Atlas
+  </text>
+  <text x="110" y="240" fill="#33544c" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2">
+    BUILD FOR THE PLANET
+  </text>
+  <text x="110" y="320" fill="#4f6a62" font-family="Manrope, Arial, sans-serif" font-size="34">
+    A cinematic climate composition instrument for
+  </text>
+  <text x="110" y="370" fill="#4f6a62" font-family="Manrope, Arial, sans-serif" font-size="34">
+    designing futures people can feel, compare, and share.
+  </text>
+  <rect x="110" y="438" width="246" height="56" rx="28" fill="#184f44" />
+  <text x="150" y="474" fill="#fff8ef" font-family="Manrope, Arial, sans-serif" font-size="24" font-weight="700">
+    Planet score engine
+  </text>
+</svg>
