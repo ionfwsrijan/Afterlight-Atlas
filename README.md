@@ -9,9 +9,17 @@
 </p>
 
 <p align="center">
+  <a href="https://afterlight-atlas.vercel.app/"><strong>Live Demo</strong></a>
+  ·
   <a href="https://github.com/ionfwsrijan/Afterlight-Atlas">Repository</a>
   ·
   <a href="./SUBMISSION.md">Challenge Submission</a>
+</p>
+
+<p align="center">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Deploy" src="https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
 </p>
 
 ## Overview
@@ -21,6 +29,10 @@
 Instead of reducing the planet to a single calculator, the project invites people to compose speculative futures through systems thinking, editorial storytelling, and interactive worldbuilding. Users choose a world seed, tune seven planetary levers, and watch the interface respond through narrative, metrics, atmosphere, and comparison logic.
 
 The result is a project that works as both an interactive product and a judge-friendly presentation tool.
+
+## Live Demo
+
+[Launch Afterlight Atlas](https://afterlight-atlas.vercel.app/)
 
 ## Why It Stands Out
 
